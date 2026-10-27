@@ -10,6 +10,7 @@
   // ---- theme toggle (manual override on top of prefers-color-scheme) ----
   var themeBtn = document.getElementById('themeToggle');
   var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  var themeListeners = [];
 
   function currentTheme(){
     return root.getAttribute('data-theme') || (darkQuery.matches ? 'dark' : 'light');
@@ -18,6 +19,7 @@
     var label = 'Switch to ' + (currentTheme() === 'dark' ? 'light' : 'dark') + ' theme';
     themeBtn.setAttribute('aria-label', label);
     themeBtn.setAttribute('title', label);
+    themeListeners.forEach(function(fn){ fn(); });
   }
   themeBtn.addEventListener('click', function(){
     var next = currentTheme() === 'dark' ? 'light' : 'dark';
@@ -156,14 +158,167 @@
     });
   }
 
+  // ---- hero dot grid: fine dots that glow and part around the cursor ----
+  (function heroDots(){
+    var canvas = document.getElementById('heroCanvas');
+    if (!canvas || !canvas.getContext) return;
+    var hero = canvas.parentElement;
+    var ctx = canvas.getContext('2d');
+    var GAP = 32, RADIUS = 170;
+    var w = 0, h = 0, colors = {};
+    var mouse = { x: -9999, y: -9999 }, cur = { x: -9999, y: -9999 }, raf = null;
+
+    function readColors(){
+      var cs = getComputedStyle(root);
+      colors.base = cs.getPropertyValue('--grid-dot').trim();
+      colors.a = cs.getPropertyValue('--accent').trim();
+      colors.b = cs.getPropertyValue('--gold').trim();
+    }
+    function draw(){
+      ctx.clearRect(0, 0, w, h);
+      for (var y = GAP / 2, j = 0; y < h; y += GAP, j++){
+        for (var x = GAP / 2, i = 0; x < w; x += GAP, i++){
+          var dx = x - cur.x, dy = y - cur.y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          var f = d < RADIUS ? 1 - d / RADIUS : 0;
+          var push = d > 0 ? f * 10 / d : 0;
+          ctx.globalAlpha = f > 0.12 ? 0.35 + f * 0.65 : 1;
+          ctx.fillStyle = f > 0.12 ? ((i + j) % 2 ? colors.a : colors.b) : colors.base;
+          ctx.beginPath();
+          ctx.arc(x + dx * push, y + dy * push, 1.1 + f * 2.4, 0, 6.2832);
+          ctx.fill();
+        }
+      }
+      ctx.globalAlpha = 1;
+    }
+    function resize(){
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = hero.clientWidth; h = hero.clientHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
+    }
+    function tick(){
+      cur.x += (mouse.x - cur.x) * 0.16;
+      cur.y += (mouse.y - cur.y) * 0.16;
+      draw();
+      raf = (Math.abs(mouse.x - cur.x) + Math.abs(mouse.y - cur.y) > 0.5) ? requestAnimationFrame(tick) : null;
+    }
+
+    readColors();
+    themeListeners.push(function(){ readColors(); draw(); });
+    var resizeTimer;
+    window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 120); });
+    resize();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize); // hero height changes once fonts load
+
+    if (!pointerFine || reduceMotion) return;
+    hero.addEventListener('mousemove', function(e){
+      var r = hero.getBoundingClientRect();
+      mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+      if (cur.x < -1000){ cur.x = mouse.x; cur.y = mouse.y; }
+      if (!raf) raf = requestAnimationFrame(tick);
+    });
+    hero.addEventListener('mouseleave', function(){
+      mouse.x = mouse.y = cur.x = cur.y = -9999;
+      if (raf){ cancelAnimationFrame(raf); raf = null; }
+      draw();
+    });
+  })();
+
+  if (pointerFine && !reduceMotion){
+    // ---- gentle tilt + monogram parallax on project cards ----
+    document.querySelectorAll('.tilt').forEach(function(card){
+      card.addEventListener('mousemove', function(e){
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty('--rx', (py * -4).toFixed(2) + 'deg');
+        card.style.setProperty('--ry', (px * 5).toFixed(2) + 'deg');
+        card.style.setProperty('--px', px.toFixed(3));
+        card.style.setProperty('--py', py.toFixed(3));
+      });
+      card.addEventListener('mouseleave', function(){
+        ['--rx', '--ry'].forEach(function(p){ card.style.setProperty(p, '0deg'); });
+        ['--px', '--py'].forEach(function(p){ card.style.setProperty(p, '0'); });
+      });
+    });
+
+    // ---- buttons that lean toward the cursor ----
+    document.querySelectorAll('.magnetic').forEach(function(btn){
+      btn.addEventListener('mousemove', function(e){
+        var r = btn.getBoundingClientRect();
+        btn.style.setProperty('--tx', ((e.clientX - r.left - r.width / 2) * 0.25).toFixed(1) + 'px');
+        btn.style.setProperty('--ty', ((e.clientY - r.top - r.height / 2) * 0.35).toFixed(1) + 'px');
+      });
+      btn.addEventListener('mouseleave', function(){
+        btn.style.setProperty('--tx', '0px');
+        btn.style.setProperty('--ty', '0px');
+      });
+    });
+
+    // ---- soft cursor ring that grows over interactive elements ----
+    var ring = document.getElementById('cursorRing');
+    var rp = { x: 0, y: 0 }, rt = { x: 0, y: 0 }, ringRaf = null;
+    function ringTick(){
+      rp.x += (rt.x - rp.x) * 0.22;
+      rp.y += (rt.y - rp.y) * 0.22;
+      ring.style.transform = 'translate(' + rp.x.toFixed(1) + 'px, ' + rp.y.toFixed(1) + 'px)';
+      ringRaf = (Math.abs(rt.x - rp.x) + Math.abs(rt.y - rp.y) > 0.3) ? requestAnimationFrame(ringTick) : null;
+    }
+    document.addEventListener('mousemove', function(e){
+      rt.x = e.clientX; rt.y = e.clientY;
+      if (!ring.classList.contains('on')){ rp.x = rt.x; rp.y = rt.y; ring.classList.add('on'); }
+      ring.classList.toggle('hover', !!e.target.closest('a, button, .proj-card'));
+      if (!ringRaf) ringRaf = requestAnimationFrame(ringTick);
+    });
+    document.addEventListener('mouseleave', function(){ ring.classList.remove('on'); });
+  }
+
+  // ---- sparkles: a small, refined burst on special links ----
+  function sparkle(x, y){
+    if (reduceMotion || !document.body.animate) return;
+    var cs = getComputedStyle(root);
+    var tones = [cs.getPropertyValue('--accent').trim(), cs.getPropertyValue('--gold').trim()];
+    for (var n = 0; n < 14; n++){
+      var s = document.createElement('span');
+      s.className = 'sparkle';
+      s.textContent = n % 3 ? '✦' : '·';
+      s.style.color = tones[n % 2];
+      s.style.left = x + 'px';
+      s.style.top = y + 'px';
+      document.body.appendChild(s);
+      var angle = (n / 14) * Math.PI * 2 + Math.random() * 0.4;
+      var dist = 40 + Math.random() * 60;
+      var scale = 0.6 + Math.random() * 0.9;
+      var anim = s.animate([
+        { transform: 'translate(-50%, -50%) scale(0)', opacity: 1 },
+        { transform: 'translate(calc(-50% + ' + (Math.cos(angle) * dist * 0.6) + 'px), calc(-50% + ' + (Math.sin(angle) * dist * 0.6) + 'px)) scale(' + scale + ')', opacity: 1, offset: 0.5 },
+        { transform: 'translate(calc(-50% + ' + (Math.cos(angle) * dist) + 'px), calc(-50% + ' + (Math.sin(angle) * dist + 14) + 'px)) scale(0.2) rotate(90deg)', opacity: 0 }
+      ], { duration: 900 + Math.random() * 400, easing: 'cubic-bezier(.22,.8,.24,1)' });
+      anim.onfinish = (function(el){ return function(){ el.remove(); }; })(s);
+    }
+  }
+  function sparkleFrom(el, e){
+    var r = el.getBoundingClientRect();
+    var useCenter = !e || e.detail === 0; // keyboard activation has no pointer position
+    sparkle(useCenter ? r.left + r.width / 2 : e.clientX, useCenter ? r.top + r.height / 2 : e.clientY);
+  }
+  document.addEventListener('click', function(e){
+    var el = e.target.closest('[data-sparkle]');
+    if (el) sparkleFrom(el, e);
+  });
+
   // ---- copy email ----
   var copyBtn = document.getElementById('copyEmail');
   var copyLabel = document.getElementById('copyLabel');
-  copyBtn.addEventListener('click', function(){
+  copyBtn.addEventListener('click', function(e){
     var email = copyBtn.getAttribute('data-email');
     function fallback(){ window.location.href = 'mailto:' + email; }
     if (!navigator.clipboard){ fallback(); return; }
     navigator.clipboard.writeText(email).then(function(){
+      sparkleFrom(copyBtn, e);
       copyBtn.classList.add('copied');
       copyLabel.textContent = 'Copied';
       setTimeout(function(){

@@ -35,6 +35,7 @@
 </svg>
 
 <a class="skip-link" href="#main">Skip to content</a>
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
 <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
 
 <header class="site-nav">
@@ -67,25 +68,26 @@
 <!-- ================= HERO ================= -->
 <section class="hero" id="top">
   <div class="aurora" id="aurora" aria-hidden="true"><i class="a1"></i><i class="a2"></i></div>
+  <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
   <div class="container hero-grid">
     <div>
       <p class="eyebrow"><span class="status">Open to new opportunities</span><span class="sep" aria-hidden="true"></span><span>Skopje, MK</span></p>
       <h1 aria-label="I build products that work, and systems that think.">
         <span class="line"><span>I build products</span></span>
-        <span class="line"><span>that work, and</span></span>
+        <span class="line"><span>that <span class="squiggle">work<svg viewBox="0 0 200 16" preserveAspectRatio="none" aria-hidden="true"><path d="M3 10 Q 28 2, 52 9 T 100 9 T 148 9 T 197 6"/></svg></span>, and</span></span>
         <span class="line"><span>systems that <span class="rotator"><span class="rot-word" id="rotWord">think.</span></span></span></span>
       </h1>
       <p class="lede">I'm Magdalena, a full-stack developer who ships complete products end-to-end: React interfaces, Spring Boot &amp; Node APIs, and AI features that go beyond a demo.</p>
 
-      <a class="pub-badge" href="#publications">
+      <a class="pub-badge" href="#publications" data-sparkle>
         <span class="ico" aria-hidden="true">📄</span>
         <span>Published at ICT Innovations 2026 <span class="where">· Struga</span></span>
         <span class="arrow" aria-hidden="true">→</span>
       </a>
 
       <div class="cta-row">
-        <a class="btn btn-primary" href="#projects">View projects <span class="arrow" aria-hidden="true">→</span></a>
-        <a class="btn" href="#contact">Get in touch</a>
+        <a class="btn btn-primary magnetic" href="#projects">View projects <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn magnetic" href="#contact">Get in touch</a>
       </div>
       <div class="social-row">
         <a class="link-u" href="https://github.com/MagdalenaStankovska" target="_blank" rel="noopener">GitHub</a>
@@ -95,7 +97,10 @@
     </div>
 
     <div class="hero-art reveal">
-      <a class="seal" href="#publications" aria-label="Published at ICT Innovations 2026, Struga. Go to publication">
+      <span class="float-pill p1" aria-hidden="true"><i></i>React</span>
+      <span class="float-pill p2" aria-hidden="true"><i></i>RAG · AI</span>
+      <span class="float-pill p3" aria-hidden="true"><i></i>Spring Boot</span>
+      <a class="seal" href="#publications" data-sparkle aria-label="Published at ICT Innovations 2026, Struga. Go to publication">
         <svg viewBox="0 0 120 120" aria-hidden="true">
           <defs><path id="circlePath" d="M60,60 m-47,0 a47,47 0 1,1 94,0 a47,47 0 1,1 -94,0"/></defs>
           <text><textPath href="#circlePath" textLength="292" lengthAdjust="spacing">PUBLISHED · ICT INNOVATIONS · STRUGA ·</textPath></text>
@@ -219,11 +224,12 @@
 
     <div class="projects-grid">
 
-      <article class="card proj-card featured spot reveal" id="project-vitacoach" data-project="vitacoach">
+      <article class="card proj-card featured spot tilt t-1 reveal" id="project-vitacoach" data-project="vitacoach">
+        <span class="monogram" aria-hidden="true">V</span>
         <div class="proj-top">
           <span class="proj-meta">React · Python</span>
           <span class="proj-badges">
-            <a class="badge badge-paper" href="#publications"><span aria-hidden="true">📄</span> Published paper</a>
+            <a class="badge badge-paper" href="#publications" data-sparkle><span aria-hidden="true">📄</span> Published paper</a>
             <span class="badge">Featured</span>
           </span>
         </div>
@@ -240,7 +246,8 @@
         </div>
       </article>
 
-      <article class="card proj-card spot reveal" data-project="examschedule">
+      <article class="card proj-card spot tilt t-5 reveal" data-project="examschedule">
+        <span class="monogram" aria-hidden="true">E</span>
         <div class="proj-top"><span class="proj-meta">Java</span></div>
         <h3 class="proj-title">Exam Schedule</h3>
         <p class="proj-desc">A Spring Boot service that turns FINKI's exam data into optimized schedules using a Gemini model, hitting 85–90% accuracy and replacing hours of manual timetabling.</p>
@@ -251,7 +258,8 @@
         </div>
       </article>
 
-      <article class="card proj-card spot reveal" data-project="signsense">
+      <article class="card proj-card spot tilt t-4 reveal" data-project="signsense">
+        <span class="monogram" aria-hidden="true">S</span>
         <div class="proj-top"><span class="proj-meta">Python</span></div>
         <h3 class="proj-title">SignSense</h3>
         <p class="proj-desc">A sign-language recognition app that reads hand gestures through MediaPipe and TensorFlow and turns finger-spelled letters into English text in real time.</p>
@@ -262,7 +270,8 @@
         </div>
       </article>
 
-      <article class="card proj-card spot reveal" data-project="parksmart">
+      <article class="card proj-card spot tilt t-2 reveal" data-project="parksmart">
+        <span class="monogram" aria-hidden="true">P</span>
         <div class="proj-top"><span class="proj-meta">React Native · Java</span></div>
         <h3 class="proj-title">ParkSmart</h3>
         <p class="proj-desc">A mobile app for paying street parking in North Macedonia by SMS. It detects your parking zone from GPS, builds the message with your zone, plate and hours, and opens Messages pre-filled so you only tap Send.</p>
@@ -272,7 +281,8 @@
         </div>
       </article>
 
-      <article class="card proj-card spot reveal" data-project="beautyqueen">
+      <article class="card proj-card spot tilt t-3 reveal" data-project="beautyqueen">
+        <span class="monogram" aria-hidden="true">B</span>
         <div class="proj-top"><span class="proj-meta">JavaScript</span></div>
         <h3 class="proj-title">BeautyQueen</h3>
         <p class="proj-desc">An appointment booking system for beauty salons. Clients pick a date, time and service, while admins manage requests with a drag-and-drop schedule.</p>
@@ -300,18 +310,18 @@
       <h2 id="skills-title">My <em>stack</em></h2>
     </div>
     <ul class="skills-list reveal">
-      <li>React</li>
-      <li>JavaScript <span class="dim">/ TS</span></li>
-      <li>Node.js</li>
-      <li>Spring Boot</li>
-      <li>Java</li>
-      <li>Python</li>
-      <li>PostgreSQL</li>
-      <li>MongoDB</li>
-      <li>TensorFlow</li>
-      <li>Gemini API <span class="dim">/ RAG</span></li>
-      <li>REST APIs</li>
-      <li>Git &amp; GitHub</li>
+      <li><span class="w">React</span></li>
+      <li><span class="w">JavaScript <span class="dim">/ TS</span></span></li>
+      <li><span class="w">Node.js</span></li>
+      <li><span class="w">Spring Boot</span></li>
+      <li><span class="w">Java</span></li>
+      <li><span class="w">Python</span></li>
+      <li><span class="w">PostgreSQL</span></li>
+      <li><span class="w">MongoDB</span></li>
+      <li><span class="w">TensorFlow</span></li>
+      <li><span class="w">Gemini API <span class="dim">/ RAG</span></span></li>
+      <li><span class="w">REST APIs</span></li>
+      <li><span class="w">Git &amp; GitHub</span></li>
     </ul>
   </div>
 </section>
@@ -328,7 +338,7 @@
         <button class="copy-btn" id="copyEmail" type="button" data-email="magdalenastankovska1321@gmail.com"><span id="copyLabel" aria-live="polite">Copy</span></button>
       </div>
       <div class="contact-links">
-        <a class="btn btn-primary" href="mailto:magdalenastankovska1321@gmail.com">Send an email <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn-primary magnetic" href="mailto:magdalenastankovska1321@gmail.com">Send an email <span class="arrow" aria-hidden="true">→</span></a>
         <a class="btn" href="https://github.com/MagdalenaStankovska" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
         <a class="btn" href="https://www.linkedin.com/in/magdalena-stankovska-66b0b7396" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#i-linkedin"/></svg>LinkedIn</a>
       </div>
