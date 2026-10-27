@@ -123,14 +123,18 @@
         { t: ' trained on finger-spelled letters, and reconstructs full words as you sign. No gloves, no sensors, just a camera.' }
       ]
     },
-    cryptoscope: {
-      path: 'cryptoscope/about.md',
+    parksmart: {
+      path: 'parksmart/about.md',
       segments: [
-        { t: 'Cryptoscope is a real-time crypto dashboard. It streams ' },
-        { t: 'live prices', c: 'acc' },
-        { t: ' across major coins, tracks your portfolio as the market moves, and lets you set ' },
-        { t: 'price alerts', c: 'acc' },
-        { t: '. Built to feel like a real trading terminal, not a toy price tracker.' }
+        { t: 'ParkSmart lets you pay for street parking in North Macedonia by SMS. It detects your ' },
+        { t: 'parking zone from GPS', c: 'acc' },
+        { t: ', builds the message (' },
+        { t: '<zone> <plate> <hours>', c: 'acc' },
+        { t: '), and opens your phone\'s Messages app pre-filled, so you only tap Send. The mobile app is built with ' },
+        { t: 'Expo / React Native and TypeScript', c: 'acc' },
+        { t: ', the backend with ' },
+        { t: 'Spring Boot, PostgreSQL and JWT auth', c: 'acc' },
+        { t: ', with backend and mobile tests running in CI on every push. It launches in Skopje and is designed to add more cities later.' }
       ]
     },
     beautyqueen: {
